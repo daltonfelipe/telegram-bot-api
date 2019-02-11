@@ -1,3 +1,9 @@
+#!/bin/sh
+
 source venv/bin/activate
 python pybot/bot.py
-deactivate
+
+
+#cd /home/daltonphellipe/telegram-bot-api
+#source venv/bin/activate
+#python pybot/bot.py
