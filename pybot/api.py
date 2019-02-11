@@ -31,6 +31,11 @@ class Bot():
             str(update.get('message').get('date'))
             ]
 
+    def has_update(self):
+        if len(self.get_updates().get('result')) > 0:
+            return True
+        return False
+
 
     def is_new_msg(self, last_msg, current_msg):
         if last_msg != current_msg:
@@ -42,17 +47,19 @@ class Bot():
     def listen(self):
         last_msg = None, None
         while True:
-            last_update = self.get_last_update()
-            current_msg = self.get_last_msg(last_update)
+            if self.has_update():
+                last_update = self.get_last_update()
+                current_msg = self.get_last_msg(last_update)
 
-            if self.is_new_msg(last_msg, current_msg):
-                last_msg = current_msg
-                # executa o comando salvo
-                for command in self.commands_list:
-                    if current_msg[0] in command:
-                        command[1](Bot(self.api_key), last_update, self.get_me())
-                
+                if self.is_new_msg(last_msg, current_msg):
+                    last_msg = current_msg
+                    # executa o comando salvo
+                    for command in self.commands_list:
+                        if current_msg[0] in command:
+                            command[1](Bot(self.api_key), last_update, self.get_me())
                 pprint(last_msg)
+            else:
+                print('Sem atualizacoes')
     
     # envia uma mensagem
     def reply_text(self, text, chat_id):
