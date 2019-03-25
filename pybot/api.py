@@ -6,7 +6,7 @@ from pprint import pprint
 class Bot():
 
     api_url = 'https://api.telegram.org/bot'
-    commands_list = []
+    __commands = dict()
 
     def __init__(self, api_key):
         self.api_key = api_key
@@ -39,7 +39,7 @@ class Bot():
 
     def is_new_msg(self, last_msg, current_msg):
         if last_msg != current_msg:
-            self.last_msg = current_msg
+            #self.last_msg = current_msg
             return True
         return False
 
@@ -50,13 +50,11 @@ class Bot():
             if self.has_update():
                 last_update = self.get_last_update()
                 current_msg = self.get_last_msg(last_update)
-
                 if self.is_new_msg(last_msg, current_msg):
-                    last_msg = current_msg
                     # executa o comando salvo
-                    for command in self.commands_list:
-                        if current_msg[0] in command:
-                            command[1](Bot(self.api_key), last_update, self.get_me())
+                    if callable(self.__commands.get(current_msg[0])):
+                        self.__commands.get(current_msg[0])(Bot(self.api_key), last_update, self.get_me())
+                last_msg = current_msg
                 pprint(last_msg)
             else:
                 print('Sem atualizacoes')
@@ -66,5 +64,7 @@ class Bot():
         requests.get(self.api_url+self.api_key+'/sendMessage?text='+text+'&chat_id='+str(chat_id))
 
 
-    def add_new_command(self, command, msg):
-        self.commands_list.append([command, msg])
+    def command(self):
+        def handle_command(func):
+            self.__commands["/"+func.__name__] = func
+        return handle_command
